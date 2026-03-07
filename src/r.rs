@@ -13,24 +13,33 @@ impl zed::Extension for RExtension {
         language_server_id: &LanguageServerId,
         worktree: &zed::Worktree,
     ) -> Result<zed::Command> {
-        let r_path = LspSettings::for_worktree("r_language_server", worktree)
-            .ok()
-            .and_then(|s| s.settings)
-            .and_then(|s| s.get("r_path").cloned())
-            .and_then(|v| v.as_str().map(|s| s.to_string()))
-            .unwrap_or("R".to_string());
-        let Some(r_exec) = worktree.which(&r_path) else {
-            return Err("R path not found".to_string());
-        };
-        Ok(zed::Command {
-            command: r_exec.to_string(),
-            args: vec![
-                "--slave".to_string(),
-                "-e".to_string(),
-                "languageserver::run()".to_string(),
-            ],
-            env: Default::default(),
-        })
+        match language_server_id.as_ref() {
+            "r_language_server" => {
+                let Some(r_exec) = worktree.which("R") else {
+                    return Err("R path not found".to_string());
+                };
+                Ok(zed::Command {
+                    command: r_exec.to_string(),
+                    args: vec![
+                        "--slave".to_string(),
+                        "-e".to_string(),
+                        "languageserver::run()".to_string(),
+                    ],
+                    env: Default::default(),
+                })
+            }
+            "air" => {
+                let Some(air_exec) = worktree.which("air") else {
+                    return Err("air path not found".to_string());
+                };
+                Ok(zed::Command {
+                    command: air_exec.to_string(),
+                    args: vec!["language-server".into()],
+                    env: Default::default(),
+                })
+            }
+            _ => return Err("Unsupported language server".to_string()),
+        }
     }
 }
 
