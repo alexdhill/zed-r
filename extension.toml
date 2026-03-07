@@ -20,7 +20,7 @@ languages = ["R"]
 
 [language_servers.r_language_server]
 name = "r lsp"
-languages = ["R", "R Markdown"]
+languages = ["R", "RMarkdown"]
 
 [language_servers.r_language_server.language_ids]
-"R Markdown" = "rmarkdown"
+"RMarkdown" = "rmarkdown"
